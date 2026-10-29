@@ -1,58 +1,39 @@
-version: '3.8'
-
+name: invoice-energy-backend
 services:
-  app:
-    build: . # Use o Dockerfile no diretório atual
-    container_name: energy-billing-backend
-    working_dir: /usr/src/app
-    volumes:
-      - ./:/usr/src/app
-    command: sh -c "npm run migrate && npm run dev" # Rodar migrações e iniciar a aplicação
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/energy_db
-      NODE_ENV: development
-      URL_BASE: http://localhost:3000
-      JWT_SECRET: my_super_secret_key
-      JWT_EXPIRES_IN: 1h
-      BCRYPT_SALT_ROUNDS: 10
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-    networks:
-      - app-network
-
   db:
-    image: postgres:15
-    container_name: postgres-db
+    image: postgres:17-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configure DB_PASSWORD}
       POSTGRES_DB: energy_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U portfolio -d energy_db"]
+      interval: 5s
+      retries: 20
+  migrate:
+    build:
+      context: .
+      target: build
+    command: npm run migrate
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "8080:80"
+      DATABASE_URL: postgresql://portfolio:${DB_PASSWORD:?Configure DB_PASSWORD}@db:5432/energy_db
     depends_on:
-      - db
-    networks:
-      - app-network
-
+      db:
+        condition: service_healthy
+  api:
+    build: .
+    ports: ["127.0.0.1:3001:3001"]
+    environment:
+      DATABASE_URL: postgresql://portfolio:${DB_PASSWORD:?Configure DB_PASSWORD}@db:5432/energy_db
+      PORT: 3001
+      URL_BASE: http://localhost:3001
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: [uploads:/app/uploads]
 volumes:
-  postgres_data:
-
-
-networks:
-  app-network:
-    driver: bridge
+  postgres-data:
+  uploads:

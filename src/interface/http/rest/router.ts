@@ -13,7 +13,7 @@ export class InitializeRoutes {
     }
 
     private initializeRoutes() {
-        this.router.use('/uploads', express.static(path.resolve(__dirname, '../../uploads')));
+
 
         const healthController = new HealthController();
         const invoiceController = new InvoiceController();

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
+import {uploadDirectory,safePdfName} from '../../../infrastructure/config/uploads';
 import { GetInvoices } from '../../../application/useCase/GetInvoices';
 import { ExtractPdfData } from '../../../application/useCase/ExtractPdfData';
 import { VariablesOfInterest } from '../../../application/useCase/VariablesOfInterest';
@@ -39,13 +40,14 @@ export class InvoiceController {
             res.status(200).json(JSON.parse(JSON.stringify(invoices, bigIntReplacer)));
         } catch (error) {
             console.error('Error fetching invoices:', error);
-            res.status(500).json({ message: 'Error fetching invoices', error });
+            res.status(500).json({ message: 'Error fetching invoices' });
         }
     }
 
     viewPdf(req: Request, res: Response): void {
         const filename = req.params.filename;
-        const filepath = path.resolve(__dirname, '../../../../uploads', filename);
+        if(!safePdfName(filename)){res.status(400).json({message:'Invalid filename'});return;}
+        const filepath = path.join(uploadDirectory, filename);
 
         if (fs.existsSync(filepath)) {
             res.setHeader('Content-Type', 'application/pdf');
@@ -77,7 +79,7 @@ export class InvoiceController {
             res.status(200).json(invoices);
 
         } catch (error) {
-            res.status(500).json({ message: error });
+            res.status(500).json({ message: 'Could not retrieve client numbers' });
         }
     }
 }

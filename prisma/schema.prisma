@@ -1,12 +1,14 @@
 // schema.prisma
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+
 }
 
 model User {
@@ -28,7 +30,7 @@ model Client {
 
 model AccountData {
   id                               Int    @id @default(autoincrement()) // ID autoincremental para a tabela account_data
-  numberClient                     BigInt // Chave estrangeira relacionada à tabela client
+  numberClient                     BigInt // Chave estrangeira relacionada ÃƒÂ  tabela client
   referenceMonth                   String
   electricalEnergyQuantity         Int
   electricalEnergyValue            Float
