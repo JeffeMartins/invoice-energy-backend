@@ -17,6 +17,8 @@ export class VariablesOfInterestService {
             const {
                 electricalEnergyValue,
                 energySCEEEWithoutICMSValue,
+                electricalEnergyQuantity,
+                energySCEEEWithoutICMSQuantity,
                 contribMunicipalPublicLightValue,
                 compensatedEnergyGDQuantity,
                 compensatedEnergyGDValue,
@@ -34,8 +36,8 @@ export class VariablesOfInterestService {
 
             const electricalEnergyConsumption = this.roundToTwoDecimals(
                 this.calculateElectricalEnergyConsumption(
-                    electricalEnergyValue,
-                    energySCEEEWithoutICMSValue
+                    electricalEnergyQuantity,
+                    energySCEEEWithoutICMSQuantity
                 )
             );
 

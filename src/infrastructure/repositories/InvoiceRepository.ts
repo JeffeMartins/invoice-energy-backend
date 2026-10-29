@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../database';
 import { IInvoice } from '../../@types';
 
 export interface Invoice {
@@ -18,7 +18,7 @@ export interface Invoice {
 }
 
 
-const prisma = new PrismaClient();
+
 
 export class PrismaInvoiceRepository {
     async save(invoice: Invoice): Promise<void> {
@@ -51,7 +51,7 @@ export class PrismaInvoiceRepository {
                 },
             });
 
-            console.log('Invoice data saved successfully', invoice);
+
         } catch (error) {
             console.error('Error saving invoice data:', error);
             throw error;
